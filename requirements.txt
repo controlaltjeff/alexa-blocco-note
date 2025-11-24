@@ -1,0 +1,6 @@
+flask
+ask-sdk-core
+ask-sdk-webservice-support
+ask-sdk-model
+gunicorn
+python-dotenv

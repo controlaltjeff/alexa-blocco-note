@@ -1,0 +1,113 @@
+{
+    "interactionModel": {
+        "languageModel": {
+            "invocationName": "il mio blocco note",
+            "intents": [
+                {
+                    "name": "AMAZON.CancelIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.HelpIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.StopIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.NavigateHomeIntent",
+                    "samples": []
+                },
+                {
+                    "name": "StartWritingIntent",
+                    "slots": [],
+                    "samples": [
+                        "scrivi",
+                        "voglio scrivere",
+                        "inizia a scrivere"
+                    ]
+                },
+                {
+                    "name": "ReadNotesIntent",
+                    "slots": [],
+                    "samples": [
+                        "rileggi",
+                        "leggi le note",
+                        "cosa ho scritto"
+                    ]
+                },
+                {
+                    "name": "CaptureNoteIntent",
+                    "slots": [
+                        {
+                            "name": "note",
+                            "type": "NoteType"
+                        }
+                    ],
+                    "samples": [
+                        "{note}"
+                    ]
+                },
+                {
+                    "name": "FinishIntent",
+                    "slots": [],
+                    "samples": [
+                        "fine",
+                        "ho finito",
+                        "basta"
+                    ]
+                },
+                {
+                    "name": "SendEmailIntent",
+                    "slots": [],
+                    "samples": [
+                        "invia",
+                        "manda email",
+                        "spedisci note"
+                    ]
+                },
+                {
+                    "name": "CloseIntent",
+                    "slots": [],
+                    "samples": [
+                        "chiudi",
+                        "esci"
+                    ]
+                }
+            ],
+            "types": [
+                {
+                    "name": "NoteType",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "comprare il latte"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "chiamare mamma"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "appuntamento dal dentista"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "pagare le bollette"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "andare in palestra"
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}
