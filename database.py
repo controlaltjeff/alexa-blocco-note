@@ -17,28 +17,28 @@ def init_db():
     conn.commit()
     conn.close()
 
-def save_note(text):
+def save_note(text, user_id):
     """Save a note to the database."""
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
-    c.execute('INSERT INTO notes (content) VALUES (?)', (text,))
+    c.execute('INSERT INTO notes (content, user_id) VALUES (?, ?)', (text, user_id))
     conn.commit()
     conn.close()
 
-def get_notes(limit=5):
-    """Retrieve the most recent notes."""
+def get_notes(user_id, limit=5):
+    """Retrieve the most recent notes for a specific user with timestamps."""
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
-    c.execute('SELECT content FROM notes ORDER BY timestamp DESC LIMIT ?', (limit,))
+    c.execute('SELECT content, timestamp FROM notes WHERE user_id = ? ORDER BY timestamp DESC LIMIT ?', (user_id, limit))
     rows = c.fetchall()
     conn.close()
-    return [row[0] for row in rows]
+    return [(row[0], row[1]) for row in rows]
 
-def get_all_notes():
-    """Retrieve all notes."""
+def get_all_notes(user_id):
+    """Retrieve all notes for a specific user with timestamps."""
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
-    c.execute('SELECT content FROM notes ORDER BY timestamp DESC')
+    c.execute('SELECT content, timestamp FROM notes WHERE user_id = ? ORDER BY timestamp DESC', (user_id,))
     rows = c.fetchall()
     conn.close()
-    return [row[0] for row in rows]
+    return [(row[0], row[1]) for row in rows]

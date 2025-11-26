@@ -24,6 +24,7 @@
                     "slots": [],
                     "samples": [
                         "scrivi",
+                        "scrivere",
                         "voglio scrivere",
                         "inizia a scrivere"
                     ]
@@ -33,6 +34,7 @@
                     "slots": [],
                     "samples": [
                         "rileggi",
+                        "rileggere",
                         "leggi le note",
                         "cosa ho scritto"
                     ]
@@ -63,6 +65,7 @@
                     "slots": [],
                     "samples": [
                         "invia",
+                        "inviare",
                         "manda email",
                         "spedisci note"
                     ]
