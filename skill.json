@@ -71,6 +71,27 @@
                     ]
                 },
                 {
+                    "name": "SetRetentionIntent",
+                    "slots": [
+                        {
+                            "name": "days",
+                            "type": "AMAZON.NUMBER"
+                        }
+                    ],
+                    "samples": [
+                        "cancella note più vecchie di {days} giorni",
+                        "imposta scadenza a {days} giorni",
+                        "tieni le note per {days} giorni",
+                        "elimina dopo {days} giorni",
+                        "scadenza {days} giorni",
+                        "ritenzione {days} giorni",
+                        "imposta scadenza",
+                        "cambia scadenza",
+                        "modifica scadenza",
+                        "configura scadenza"
+                    ]
+                },
+                {
                     "name": "CloseIntent",
                     "slots": [],
                     "samples": [
@@ -106,6 +127,16 @@
                         {
                             "name": {
                                 "value": "andare in palestra"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "ricordami di fare la spesa"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "idea per il progetto"
                             }
                         }
                     ]

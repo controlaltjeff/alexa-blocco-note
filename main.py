@@ -16,6 +16,7 @@ from ask_sdk_model.ui import SimpleCard
 from ask_sdk_webservice_support.webservice_handler import WebserviceSkillHandler
 from ask_sdk_model.services.ups import UpsServiceClient
 from ask_sdk_model.services.service_exception import ServiceException
+from ask_sdk_model.dialog import ElicitSlotDirective
 import smtplib
 from email.mime.text import MIMEText
 from datetime import datetime
@@ -56,6 +57,8 @@ MSG_NOT_UNDERSTOOD = os.environ.get("MSG_NOT_UNDERSTOOD", "Non ho capito. Vuoi s
 MSG_GOODBYE = os.environ.get("MSG_GOODBYE", "Arrivederci!")
 MSG_ERROR = os.environ.get("MSG_ERROR", "Scusa, ho avuto un problema. Riprova.")
 MSG_SMTP_CONFIG_ERROR = os.environ.get("MSG_SMTP_CONFIG_ERROR", "Errore di configurazione del server email.")
+MSG_RETENTION_SET = os.environ.get("MSG_RETENTION_SET", "Ho impostato la scadenza a {days} giorni.")
+MSG_CLEANUP_DONE = os.environ.get("MSG_CLEANUP_DONE", "Ho cancellato {count} vecchie note.")
 
 def get_user_id(handler_input):
     """Extract user_id from the Alexa request."""
@@ -66,6 +69,12 @@ class LaunchRequestHandler(AbstractRequestHandler):
         return is_request_type("LaunchRequest")(handler_input)
 
     def handle(self, handler_input):
+        # Run cleanup on launch
+        user_id = get_user_id(handler_input)
+        deleted = database.cleanup_old_notes(user_id)
+        if deleted > 0:
+            logger.info(f"Cleaned up {deleted} old notes for user {user_id}")
+            
         speak_output = MSG_LAUNCH
         return (
             handler_input.response_builder
@@ -132,6 +141,9 @@ class CaptureNoteIntentHandler(AbstractRequestHandler):
             buffer.append(note_text)
             session_attr["note_buffer"] = buffer
             
+            # Debug logging
+            logger.info(f"CaptureNoteIntent - Added '{note_text}' to buffer. Buffer now: {buffer}")
+            
             speak_output = MSG_NOTE_RECEIVED
             return (
                 handler_input.response_builder
@@ -161,6 +173,10 @@ class FinishIntentHandler(AbstractRequestHandler):
             user_id = get_user_id(handler_input)
             buffer = session_attr.get("note_buffer", [])
             full_note = " ".join(buffer)
+            
+            # Debug logging
+            logger.info(f"FinishIntent triggered - Buffer: {buffer}, Full note: '{full_note}'")
+            
             if full_note:
                 database.save_note(full_note, user_id)
                 speak_output = MSG_NOTE_SAVED
@@ -370,12 +386,50 @@ class SendEmailIntentHandler(AbstractRequestHandler):
             )
 
 
-        # Return to main menu after sending email
-        speak_output = MSG_EMAIL_SENT
         return (
             handler_input.response_builder
                 .speak(speak_output)
                 .ask(speak_output)
+                .response
+        )
+
+class SetRetentionIntentHandler(AbstractRequestHandler):
+    def can_handle(self, handler_input):
+        return is_intent_name("SetRetentionIntent")(handler_input)
+
+    def handle(self, handler_input):
+        slots = handler_input.request_envelope.request.intent.slots
+        days_slot = slots.get("days")
+        days = days_slot.value if days_slot else None
+        
+        if days:
+            try:
+                days_int = int(days)
+                user_id = get_user_id(handler_input)
+                database.set_retention_days(user_id, days_int)
+                speak_output = MSG_RETENTION_SET.format(days=days_int)
+            except ValueError:
+                speak_output = MSG_ERROR
+        else:
+            # If days is missing, ask for it
+            speak_output = "Per quanti giorni vuoi conservare le note?"
+            return (
+                handler_input.response_builder
+                    .speak(speak_output)
+                    .ask(speak_output)
+                    .add_directive(
+                        ElicitSlotDirective(
+                            slot_to_elicit="days",
+                            updated_intent=handler_input.request_envelope.request.intent
+                        )
+                    )
+                    .response
+            )
+
+        return (
+            handler_input.response_builder
+                .speak(speak_output)
+                .ask(MSG_MENU_SHORT)
                 .response
         )
 
@@ -443,6 +497,7 @@ sb.add_request_handler(CaptureNoteIntentHandler())
 sb.add_request_handler(FinishIntentHandler())
 sb.add_request_handler(ReadNotesIntentHandler())
 sb.add_request_handler(SendEmailIntentHandler())
+sb.add_request_handler(SetRetentionIntentHandler())
 sb.add_request_handler(CloseIntentHandler())
 sb.add_request_handler(HelpIntentHandler())
 sb.add_request_handler(CancelOrStopIntentHandler())
